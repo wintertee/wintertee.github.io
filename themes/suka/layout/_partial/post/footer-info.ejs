@@ -1,7 +1,7 @@
-<% if (page.hide_license !== true && theme.post.license || page.license) { %>
+<% if (page.author && page.hide_license !== true && theme.post.license || page.license) { %>
     <blockquote class="post-license">
         <p>
-            <strong><%- __('post.author') %>&nbsp;:&nbsp;<%= config.author %></strong>
+            <strong><%- __('post.author') %>&nbsp;:&nbsp;<%= page.author %></strong>
             <br>
             <strong>
             <% if (page.license) { %>
