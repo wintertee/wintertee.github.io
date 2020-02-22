@@ -11,7 +11,7 @@
         <!-- <img class="author-thumb lazyload" data-src="<%= url_for(theme.img.avatar) %>" src="<%= lazyloadImgSrc %>" alt="<%= config.author %>'s Avatar"> -->
         <span><%= date(page.date, config.date_format) %></span>
         <% if (page.author) {%>
-        <a href=<%= url_for('/tags/' + page.author) %>><%= page.author %></a>
+        作者：<a href=<%= url_for('/tags/' + page.author) %>><%= page.author %></a>
         <% } %>
         <% if (page.categories && page.categories.length) { %>
             <span class="suka-devide-dot"></span>

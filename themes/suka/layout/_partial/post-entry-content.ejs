@@ -19,7 +19,7 @@
     <div class="card-footer post-entry-info text-gray">
         <!--  <img class="author-thumb lazyload" data-src="<%= url_for(theme.img.avatar) %>" src="<%= lazyloadImgSrc %>" alt="<%= config.author %>'s Avatar">  -->
         <% if (post.author) {%>
-            <a href=<%= url_for('/tags/' + post.author) %>><%= post.author %></a>
+            作者：<a href=<%= url_for('/tags/' + post.author) %>><%= post.author %></a>
         <% } %>
         <time><%= date(post.date, config.date_format) %></time>
         <% if (post.categories && post.categories.length) { %>
