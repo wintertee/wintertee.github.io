@@ -1,7 +1,9 @@
 ---
 title: Hexo配置笔记
 date: 2020-2-21 12:55:00
-tags: linux
+tags: 
+  - Hexo
+  - 冬茶
 author: 冬茶
 ---
 
@@ -117,6 +119,14 @@ hexo d
 ```
 
 即可完成在 GitHub 和 服务器上的自动部署。
+
+将_config.yml中的post_asset_folder选项置为true
+
+这样可以方便地为每篇博文配图。
+
+### 增加一个live2d
+
+参考[一个看板娘入住你的个人博客只需要三步](https://lexburner.github.io/live2d/)
 
 ## 2. 使用 GitHub 完成多终端同步 Hexo
 

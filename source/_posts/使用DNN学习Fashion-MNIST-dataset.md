@@ -1,8 +1,11 @@
 ---
 title: 使用DNN学习Fashion MNIST dataset
 date: 2020-02-20 20:57:02
-tags: 机器学习
+tags: 
+  - 机器学习
+  - 冬茶
 thumbnail: /images/MNIST.png
+author: 冬茶
 ---
 所有代码可以在我的Github上[下载](https://github.com/wintertee/ML-notes/blob/master/1.fashion_minst.ipynb)，也可以直接在 Google Colab 中[打开](https://colab.research.google.com/github/wintertee/ML-notes/blob/master/1.fashion_minst.ipynb)
 

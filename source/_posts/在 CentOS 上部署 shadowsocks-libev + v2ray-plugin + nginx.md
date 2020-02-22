@@ -1,9 +1,12 @@
 ---
 title: 在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo
 date: 2020-02-21 12:25:00
-tags: linux
+tags: 
+    - GFW
+    - 冬茶
 toc: false
 hidden: true
+author: 冬茶
 ---
 
 ## 1. VPS购买与内核升级、开启BBR
