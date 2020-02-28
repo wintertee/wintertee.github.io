@@ -11,7 +11,8 @@ author: 冬茶
 
 ## 1. VPS购买与内核升级、开启BBR
 
-推荐购买国外 CN2 GIA 线路的VPS：<https://www.zhujiceping.com/all-vps/cn2-vps/> 因为不走 CN2，丢包真的太高了，之前 Vultr 东京服务器，非高峰丢包30%，高峰丢包50%，网速大打折扣。
+一定要购买国外 CN2 GIA 线路的VPS：<https://www.zhujiceping.com/all-vps/cn2-vps/>   
+之前使用过 Vultr 东京服务器，因为不走 CN2，丢包真的太高了，非高峰丢包30%，高峰丢包50%，网速大打折扣。
 
 系统使用 CentOS 7。
 
