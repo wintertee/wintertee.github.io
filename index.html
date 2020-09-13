@@ -145,6 +145,163 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
+    <link itemprop="mainEntityOfPage" href="https://www.wintertee.top/2020/09/13/CS450%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="WinterTee">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冬茶的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/13/CS450%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">CS450笔记</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-09-13 23:41:57 / Modified: 23:46:00" itemprop="dateCreated datePublished" datetime="2020-09-13T23:41:57+08:00">2020-09-13</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="embedded-systems-algorithms-architectures-for-dedicated-hw-computing">Embedded Systems: Algorithms &amp; Architectures for Dedicated HW Computing</h1>
+<h2 id="introduction">1. Introduction</h2>
+<h3 id="design-metrics">1.1 Design metrics</h3>
+<ul>
+<li><p>Design metrics</p>
+<ul>
+<li>Power</li>
+<li>NRE cost</li>
+<li>Time-to-market</li>
+<li>Flexibility</li>
+<li>Maintainability</li>
+<li>...</li>
+</ul></li>
+<li><p><strong>NRE: Non Recurring Engineering costs 一次性工程费用</strong></p>
+<p>研发某项新产品的单次成本。可以均摊到生产的产品总量中</p></li>
+<li><p><strong>ASIC Design 特殊应用集成电路 (Application-specific integrated circuit)</strong></p>
+<p>需要Logical Design + Physical Design，设计成本高，设计时间长，芯片效率高，适合大规模生产</p></li>
+<li><p><strong>FPGA Design 现场可编程逻辑门阵列 (Field-programmable gate array)</strong></p>
+<p>只需要Logical Design，设计成本低，适合小批量生产</p></li>
+</ul>
+<h3 id="circuit-logics">1.2 Circuit logics</h3>
+<ul>
+<li><p><strong>Propagation delay 传播延迟</strong></p>
+<p>The propagation delay is the amount of time from the instant <u><strong>when a new input to a logic gate becomes stable and valid</strong></u> and the instant <u><strong>when the output of that logic gate becomes stable and valid</strong></u>.</p></li>
+<li><p><strong>Age of a signal</strong></p>
+<p>The age of a signal is <strong><u>the moment when this signal becomes stable</u></strong>. Age value takes into account <strong><u>the propagation delays of all logical gates</u></strong> involved in the generation of this signal.</p></li>
+<li><p><strong>Critical Path 关键路径</strong></p>
+<p>The critical path is the path composed of all combinational blocks that lead to the worst propagation delay.</p>
+<p>关键路径被定义为从输入端到达输出端所经历的最大延迟路径。</p></li>
+<li><p><strong>Combinational Logic 组合逻辑电路</strong></p>
+<p>Combinational logic is a type of logic circuit where the output is a pure function of the present input only.</p>
+<p>组合逻辑电路是一种逻辑电路，它的任一时刻的稳态输出，仅仅与该时刻的输入变量的取值有关，而与该时刻以前的输入变量取值无关。</p></li>
+<li><p><strong>Sequential Logic 时序逻辑电路</strong></p>
+<p>Sequential logic is a type of logic circuit whose output depends not only on the present value of its input signals but on the sequence of past inputs, the input history as well.</p>
+<p>时序逻辑电路是指电路任何时刻的稳态输出不仅取决于当前的输入，还与前一时刻输入形成的状态有关。换句话说，时序逻辑拥有储存元件（内存）来存储信息，而组合逻辑则没有。（“feedback”）</p></li>
+<li><p><strong>Synchronous Logic 同步电路</strong></p>
+<p>Synchronous circuit is a logic circuit in which the changes in the state of memory elements are synchronized by a clock signal.</p>
+<p>In a synchronous logic system, timing constraints are managed by appropriately defining sampling times according to a periodic clock signal. Data updating (inputs, outputs and system state) is done synchronously on the rising edges of the clock signal.</p></li>
+<li><p><strong>D flip-flop (DFF) D触发器</strong></p>
+<figure>
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/D-Type_Flip-flop.svg/100px-D-Type_Flip-flop.svg.png" alt="img" /><figcaption aria-hidden="true">img</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Set</th>
+<th style="text-align: center;">Reset</th>
+<th style="text-align: center;">D input</th>
+<th style="text-align: center;">&gt;</th>
+<th style="text-align: center;">Q output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">↑</td>
+<td style="text-align: center;">D</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">not ↑</td>
+<td style="text-align: center;">Q</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">{0, 1}</td>
+</tr>
+</tbody>
+</table>
+<p>(<em>X</em> denotes a don't care condition, meaning the signal is irrelevant)</p>
+<p>可作为寄存器（Memory/Registre)</p></li>
+<li><p><strong>DFF Timing Constraints</strong></p>
+<ul>
+<li><strong>Setup time</strong>: <span class="math inline">\(t_{su}\)</span> = time before the clock edge that data must be stable</li>
+<li><strong>Hold time</strong>: t<sub>h</sub> = time after the clock edge that data must be stable</li>
+<li><strong>Propagation delay</strong>: t<sub>pr</sub> = time after clock edge that the output Q is guaranteed to be stable</li>
+</ul></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="">
     <link itemprop="mainEntityOfPage" href="https://www.wintertee.top/2020/02/22/%E5%90%B4%E6%81%A9%E8%BE%BE-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -737,7 +894,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
