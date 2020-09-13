@@ -104,13 +104,15 @@ deploy:
         hexo: git@www.wintertee.top:/home/git/hexo.git,master
 suka_theme:
   search:
-    enable: true
+    enable: false
     path: search.json
     field: post # Page | Post | All. Default post
   prism:
-    enable: true
+    enable: false
     line_number: true
     theme: default
+  busuanzi:
+    enable: false
 
 live2d:
   enable: true
