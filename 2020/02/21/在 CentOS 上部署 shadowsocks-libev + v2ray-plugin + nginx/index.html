@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.wintertee.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1. VPS购买与内核升级、开启BBR 一定要购买国外 CN2 GIA 线路的VPS：https:&#x2F;&#x2F;www.zhujiceping.com&#x2F;all-vps&#x2F;cn2-vps&#x2F; 之前使用过 Vultr 东京服务器，因为不走 CN2，丢包真的太高了，非高峰丢包30%，高峰丢包50%，网速大打折扣。 系统使用 CentOS 7。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo">
+<meta property="og:url" content="https://www.wintertee.top/2020/02/21/%E5%9C%A8%20CentOS%20%E4%B8%8A%E9%83%A8%E7%BD%B2%20shadowsocks-libev%20+%20v2ray-plugin%20+%20nginx/index.html">
+<meta property="og:site_name" content="冬茶的博客">
+<meta property="og:description" content="1. VPS购买与内核升级、开启BBR 一定要购买国外 CN2 GIA 线路的VPS：https:&#x2F;&#x2F;www.zhujiceping.com&#x2F;all-vps&#x2F;cn2-vps&#x2F; 之前使用过 Vultr 东京服务器，因为不走 CN2，丢包真的太高了，非高峰丢包30%，高峰丢包50%，网速大打折扣。 系统使用 CentOS 7。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-02-21T04:25:00.000Z">
+<meta property="article:modified_time" content="2020-09-13T15:36:35.380Z">
+<meta property="article:author" content="WinterTee">
+<meta property="article:tag" content="冬茶">
+<meta property="article:tag" content="GFW">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.wintertee.top/2020/02/21/%E5%9C%A8%20CentOS%20%E4%B8%8A%E9%83%A8%E7%BD%B2%20shadowsocks-libev%20+%20v2ray-plugin%20+%20nginx/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo | 冬茶的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">冬茶的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://www.wintertee.top/2020/02/21/%E5%9C%A8%20CentOS%20%E4%B8%8A%E9%83%A8%E7%BD%B2%20shadowsocks-libev%20+%20v2ray-plugin%20+%20nginx/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="WinterTee">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冬茶的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-21 12:25:00" itemprop="dateCreated datePublished" datetime="2020-02-21T12:25:00+08:00">2020-02-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-13 23:36:35" itemprop="dateModified" datetime="2020-09-13T23:36:35+08:00">2020-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="vps购买与内核升级开启bbr">1. VPS购买与内核升级、开启BBR</h2>
+<p>一定要购买国外 CN2 GIA 线路的VPS：<a target="_blank" rel="noopener" href="https://www.zhujiceping.com/all-vps/cn2-vps/" class="uri">https://www.zhujiceping.com/all-vps/cn2-vps/</a><br />
+之前使用过 Vultr 东京服务器，因为不走 CN2，丢包真的太高了，非高峰丢包30%，高峰丢包50%，网速大打折扣。</p>
+<p>系统使用 CentOS 7。</p>
+<a id="more"></a>
+<h3 id="更新-linux-内核">更新 Linux 内核</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">uname -sr</span><br><span class="line">rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org</span><br><span class="line">rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm</span><br><span class="line">yum --enablerepo=elrepo-kernel install kernel-ml</span><br><span class="line">reboot</span><br><span class="line">uname -sr</span><br></pre></td></tr></table></figure>
+<p>如果内核版本没有变化，则需要设置 GRUB 默认的内核版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/default/grub</span><br></pre></td></tr></table></figure>
+<p>设置 <code>GRUB_DEFAULT=0</code>。意思是 GRUB 初始化页面的第一个内核将作为默认内核。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">grub2-mkconfig -o /boot/grub2/grub.cfg</span><br><span class="line">reboot</span><br><span class="line">uname -r</span><br></pre></td></tr></table></figure>
+<p>重启之后内核就更新完毕了。</p>
+<h3 id="使用-bbr-拥塞算法">使用 BBR 拥塞算法</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+<p>添加以下内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">net.core.default_qdisc &#x3D; fq</span><br><span class="line">net.ipv4.tcp_congestion_control &#x3D; bbr</span><br></pre></td></tr></table></figure>
+<p>加载系统参数（正常情况下会输出我们之前加入的内容）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl -p</span><br></pre></td></tr></table></figure>
+<p>验证bbr是否已经开启: 若</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br></pre></td></tr></table></figure>
+<p>返回</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net.ipv4.tcp_available_congestion_control = bbr cubic reno</span><br></pre></td></tr></table></figure>
+<p>且</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsmod | grep bbr</span><br></pre></td></tr></table></figure>
+<p>输出不为空即成功。</p>
+<h2 id="网络测速">2. 网络测速</h2>
+<h3 id="丢包和延迟测试">丢包和延迟测试</h3>
+<p>用 <a target="_blank" rel="noopener" href="http://ping.pe" class="uri">http://ping.pe</a> 测试全球不同地区（主要是中国）的延迟和丢包情况。</p>
+<h3 id="网速测试">网速测试</h3>
+<p>用 SpeedTest 测试网速。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget -O speedtest-cli https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py</span><br><span class="line">chmod +x speedtest-cli</span><br><span class="line">./speedtest-cli</span><br></pre></td></tr></table></figure>
+<p>speedtest会自动选择最好的服务器进行测速。也可以选择指定的服务器测速。在 <a target="_blank" rel="noopener" href="http://www.speedtest.net/speedtest-servers-static.php" class="uri">http://www.speedtest.net/speedtest-servers-static.php</a> 中找到你想要测速的服务器节点的 <code>id</code> ，比如上海电信是3633，那么测速命令就是</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./speedtest-cli --server 3633</span><br></pre></td></tr></table></figure>
+<h2 id="域名注册与-cloudflare-配置">3. 域名注册与 Cloudflare 配置</h2>
+<p>将域名的 Name server 选到 Cloudflare，再在 Cloudflare 中把域名解析到 VPS 上。注意在 Cloudflare 中只需要开启 DNS功能（记得把解析你的域名到 VPS 上！），不开启CDN功能。（当你的 VPS 被屏蔽时，打开CDN即可恢复，但连接速度可能会下降）。</p>
+<p>在SSL选项中选择full。</p>
+<h2 id="安装-shadowsocks-libev">4.安装 Shadowsocks-libev</h2>
+<p>官方的安装方法有一些<a target="_blank" rel="noopener" href="https://github.com/shadowsocks/shadowsocks-libev/issues/2491">问题</a>浪费了我好长时间，还是用秋大的一键安装脚本吧。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev.sh</span><br><span class="line">chmod +x shadowsocks-libev.sh</span><br><span class="line">./shadowsocks-libev.sh</span><br></pre></td></tr></table></figure>
+<p>卸载方法： 使用 root 用户登录，运行以下命令： <code>./shadowsocks-libev.sh uninstall</code></p>
+<p>使用命令： 启动：<code>/etc/init.d/shadowsocks start</code> 停止：<code>/etc/init.d/shadowsocks stop</code> 重启：<code>/etc/init.d/shadowsocks restart</code> 查看状态：<code>/etc/init.d/shadowsocks status</code></p>
+<p>需要注意的是，这个命令并不能停止 <code>v2ray-plugin</code> 进程，导致重启命令失效，这时候需要手动停止 <code>v2ray-plugin</code> 进程。先找到进程的<code>pid</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -tulnp|grep ss端口</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp6       0      0 :::ss端口              :::*                    LISTEN      1302/v2ray-plugin</span><br></pre></td></tr></table></figure>
+<p>列出所有占用 yourport 端口的进程。同时显示它的 <code>pid</code>（比如这里是1302）。手动杀掉这个进程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> 1302</span><br></pre></td></tr></table></figure>
+<p>即可正常执行重启命令。</p>
+<h3 id="安装-golang-因为-v2ray-plugin-是用-go-语言写的">5. 安装 GOlang （因为 v2ray-plugin 是用 GO 语言写的）</h3>
+<p>从 <a target="_blank" rel="noopener" href="https://golang.org/dl/" class="uri">https://golang.org/dl/</a> 找到Go语言最新版本的下载地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz</span><br><span class="line">tar -xvf go1.13.8.linux-amd64.tar.gz</span><br><span class="line">sudo mv go /usr/<span class="built_in">local</span></span><br></pre></td></tr></table></figure>
+<p>设置环境变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GOROOT=/usr/<span class="built_in">local</span>/go</span><br><span class="line"><span class="built_in">export</span> GOPATH=<span class="variable">$HOME</span>/work</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$GOPATH</span>/bin:<span class="variable">$GOROOT</span>/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
+<p>检查安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go version</span><br></pre></td></tr></table></figure>
+<h2 id="安装-v2ray-plugin">6. 安装 v2ray-plugin</h2>
+<p>先去 GitHub 上下载最新的 release <a target="_blank" rel="noopener" href="https://github.com/shadowsocks/v2ray-plugin/releases" class="uri">https://github.com/shadowsocks/v2ray-plugin/releases</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/shadowsocks/v2ray-plugin/releases/download/v1.3.0/v2ray-plugin-linux-amd64-v1.3.0.tar.gz</span><br><span class="line">tar -xzf v2ray-plugin-linux-amd64-v1.3.0.tar.gz</span><br><span class="line">mv v2ray-plugin_linux_amd64 /usr/bin/v2ray-plugin</span><br></pre></td></tr></table></figure>
+<h2 id="申请-ssl-证书">6. 申请 SSL 证书</h2>
+<p>这一步之所以放到后面，是因为 DNS解析需要一段时间。现在 Cloudflare 的 DNS 应该解析完成了。先到 cloudflare 页面，点击右上角的头像，然后点击 My Profile ，在个人信息页面下拉到最后有个 API KEYs -&gt; <strong>Global API KEY</strong>, 复制你的 API KEY, 同时复制你的 CloundFlare 的<strong>登陆邮箱</strong> ， key 和 email 用于申请证书。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CF_Email=<span class="string">&quot;CloundFlare邮箱&quot;</span></span><br><span class="line"><span class="built_in">export</span> CF_Key=<span class="string">&quot;API KEY&quot;</span></span><br><span class="line">curl https://get.acme.sh | sh</span><br><span class="line">~/.acme.sh/acme.sh --issue --dns dns_cf -d 你的域名</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Your cert is <span class="keyword">in</span>  /root/.acme.sh/你的域名/你的域名.cer</span><br><span class="line">Your cert key is <span class="keyword">in</span>  /root/.acme.sh/你的域名/你的域名.key</span><br><span class="line">The intermediate CA cert is <span class="keyword">in</span>  /root/.acme.sh/你的域名/ca.cer</span><br><span class="line">And the full chain certs is there:  /root/.acme.sh/你的域名/fullchain.cer</span><br></pre></td></tr></table></figure>
+<h2 id="配置-shadowsocks-和-v2ray-plugin">7. 配置 Shadowsocks 和 v2ray-plugin</h2>
+<p>首先新建shadowsocks配置文件的目录，然后创建config.json。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir /etc/shadowsocks-libev</span><br><span class="line">vim /etc/shadowsocks-libev/config.json</span><br></pre></td></tr></table></figure>
+<p>配置内容如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;server&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;nameserver&quot;</span>: <span class="string">&quot;8.8.8.8&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;server_port&quot;</span>: ss端口,</span><br><span class="line">  <span class="attr">&quot;password&quot;</span>: <span class="string">&quot;你的密码&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;method&quot;</span>: <span class="string">&quot;chacha20-ietf-poly1305&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;timeout&quot;</span>: <span class="number">600</span>,</span><br><span class="line">  <span class="attr">&quot;no_delay&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">&quot;mode&quot;</span>: <span class="string">&quot;tcp_and_udp&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;plugin&quot;</span>: <span class="string">&quot;v2ray-plugin&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;plugin_opts&quot;</span>: <span class="string">&quot;server;path=/yourpath;fast-open;host=xxxxxxxxx.com;cert=/证书目录/fullchain.cer;key=/证书目录/xxxxxxxxx.com.key;loglevel=none&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>要注意的几点：</p>
+<ol type="1">
+<li>server 是 127.0.0.1，即只接受本机流量，让 ss 彻底对外不可见。在后边要使用 nginx 反向代理。</li>
+<li><code>plugin_opts</code> 中不填写 <code>tls</code> ,也因为 nginx 反向代理后转发的是 http 流量。</li>
+<li>其中cert和key可不填写，v2ray-plugin会自动搜索acme创建的证书。</li>
+<li><code>yourpath</code> 是自定义的，在 Nginx 配置中会用到。</li>
+</ol>
+<h2 id="安装并配置-nginx">8. 安装并配置 Nginx</h2>
+<h3 id="下载安装">下载安装</h3>
+<p>使用lnmp一键安装脚本，这样安装出来的 Nginx 和官方源的相比，支持更先进的功能（如 <code>tls1.3</code>）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://soft.vpser.net/lnmp/lnmp1.6.tar.gz -cO lnmp1.6.tar.gz &amp;&amp; tar zxf lnmp1.6.tar.gz &amp;&amp; <span class="built_in">cd</span> lnmp1.6 &amp;&amp; ./install.sh nginx</span><br></pre></td></tr></table></figure>
+<p>打开之后，可以查看一下防火墙打开的所有的服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo firewall-cmd --list-service</span><br><span class="line">ssh dhcpv6-client http</span><br></pre></td></tr></table></figure>
+<p>可以看到，系统已经打开了 http 服务。</p>
+<p>反向代理:</p>
+<p>需要指出的是 CentOS 7 的 SELinux，使用反向代理需要打开网络访问权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo setsebool -P httpd_can_network_connect on</span><br></pre></td></tr></table></figure>
+<p>打开网络权限之后，反向代理可以使用了。</p>
+<h3 id="配置-nginx">配置 Nginx</h3>
+<p>创建自己的配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /usr/<span class="built_in">local</span>/nginx/conf/vhost/你的域名.conf</span><br></pre></td></tr></table></figure>
+<p>在其中添加</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       443 ssl http2;</span><br><span class="line">        listen       [::]:443 ssl http2;</span><br><span class="line">        server_name  你的域名;     # Your domain.</span><br><span class="line">        root         /home/wwwroot/default;</span><br><span class="line">        ssl_certificate &quot;/root/.acme.sh/你的域名/fullchain.cer&quot;;     # Path to certificate</span><br><span class="line">        ssl_certificate_key &quot;/root/.acme.sh/你的域名/你的域名.key&quot;;     # Path to private key</span><br><span class="line">        ssl_session_cache shared:SSL:1m;</span><br><span class="line">        ssl_session_timeout  10m;</span><br><span class="line">        ssl_ciphers &#x27;ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS&#x27;;</span><br><span class="line">        ssl_prefer_server_ciphers on;</span><br><span class="line"></span><br><span class="line">        location /yourpath &#123; #这里写在ss配置里的yourpath</span><br><span class="line">                proxy_redirect off;</span><br><span class="line">                proxy_pass http://127.0.0.1:yourport; #把流量转发为http到 v2ray-plugin</span><br><span class="line">                proxy_set_header Upgrade $http_upgrade;</span><br><span class="line">                proxy_set_header Connection &quot;upgrade&quot;;</span><br><span class="line">                proxy_set_header Host $http_host;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">                location = / &#123;</span><br><span class="line">                root  /home/wwwroot/default;</span><br><span class="line">                index index.html;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以先测试以下配置文件是否正确：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t</span><br></pre></td></tr></table></figure>
+<p>配置正确，重载 nginx 设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lnmp nginx reload</span><br></pre></td></tr></table></figure>
+<p>以上。</p>
+<hr />
+<h2 id="references">references</h2>
+<ol type="1">
+<li><a target="_blank" rel="noopener" href="https://www.vpsserver.com/community/tutorials/3943/how-to-run-speedtest-in-the-terminal-and-choose-speedtest-location-for-what-you-want/" class="uri">https://www.vpsserver.com/community/tutorials/3943/how-to-run-speedtest-in-the-terminal-and-choose-speedtest-location-for-what-you-want/</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/iMeiji/shadowsocks_install/wiki/shadowsocks-libev-%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85" class="uri">https://github.com/iMeiji/shadowsocks_install/wiki/shadowsocks-libev-%E4%B8%80%E9%94%AE%E5%AE%89%E8%A3%85</a></li>
+<li><a target="_blank" rel="noopener" href="https://gist.github.com/Shuanghua/c9c448f9bd12ebbfd720b34f4e1dd5c6" class="uri">https://gist.github.com/Shuanghua/c9c448f9bd12ebbfd720b34f4e1dd5c6</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.coldawn.com/category/linux/" class="uri">https://www.coldawn.com/category/linux/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.wenboz.com/p/af93.html" class="uri">https://www.wenboz.com/p/af93.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/05810dbe129b" class="uri">https://www.jianshu.com/p/05810dbe129b</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%86%AC%E8%8C%B6/" rel="tag"># 冬茶</a>
+              <a href="/tags/GFW/" rel="tag"># GFW</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/" rel="prev" title="使用DNN学习Fashion MNIST dataset">
+      <i class="fa fa-chevron-left"></i> 使用DNN学习Fashion MNIST dataset
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/21/hexo%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/" rel="next" title="Hexo配置笔记">
+      Hexo配置笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#vps%E8%B4%AD%E4%B9%B0%E4%B8%8E%E5%86%85%E6%A0%B8%E5%8D%87%E7%BA%A7%E5%BC%80%E5%90%AFbbr"><span class="nav-number">1.</span> <span class="nav-text">1. VPS购买与内核升级、开启BBR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0-linux-%E5%86%85%E6%A0%B8"><span class="nav-number">1.1.</span> <span class="nav-text">更新 Linux 内核</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-bbr-%E6%8B%A5%E5%A1%9E%E7%AE%97%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">使用 BBR 拥塞算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%B5%8B%E9%80%9F"><span class="nav-number">2.</span> <span class="nav-text">2. 网络测速</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%A2%E5%8C%85%E5%92%8C%E5%BB%B6%E8%BF%9F%E6%B5%8B%E8%AF%95"><span class="nav-number">2.1.</span> <span class="nav-text">丢包和延迟测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E9%80%9F%E6%B5%8B%E8%AF%95"><span class="nav-number">2.2.</span> <span class="nav-text">网速测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E6%B3%A8%E5%86%8C%E4%B8%8E-cloudflare-%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">3. 域名注册与 Cloudflare 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-shadowsocks-libev"><span class="nav-number">4.</span> <span class="nav-text">4.安装 Shadowsocks-libev</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-golang-%E5%9B%A0%E4%B8%BA-v2ray-plugin-%E6%98%AF%E7%94%A8-go-%E8%AF%AD%E8%A8%80%E5%86%99%E7%9A%84"><span class="nav-number">4.1.</span> <span class="nav-text">5. 安装 GOlang （因为 v2ray-plugin 是用 GO 语言写的）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-v2ray-plugin"><span class="nav-number">5.</span> <span class="nav-text">6. 安装 v2ray-plugin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7-ssl-%E8%AF%81%E4%B9%A6"><span class="nav-number">6.</span> <span class="nav-text">6. 申请 SSL 证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-shadowsocks-%E5%92%8C-v2ray-plugin"><span class="nav-number">7.</span> <span class="nav-text">7. 配置 Shadowsocks 和 v2ray-plugin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%B9%B6%E9%85%8D%E7%BD%AE-nginx"><span class="nav-number">8.</span> <span class="nav-text">8. 安装并配置 Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85"><span class="nav-number">8.1.</span> <span class="nav-text">下载安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-nginx"><span class="nav-number">8.2.</span> <span class="nav-text">配置 Nginx</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#references"><span class="nav-number">9.</span> <span class="nav-text">references</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">WinterTee</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinterTee</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.wintertee.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1. 安装 Hexo 博客 以下内容需要 git 基础知识。 GitHub 创建个人仓库 登陆 GitHub，创建新仓库，仓库名为：用户名.github.io">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo配置笔记">
+<meta property="og:url" content="https://www.wintertee.top/2020/02/21/hexo%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="冬茶的博客">
+<meta property="og:description" content="1. 安装 Hexo 博客 以下内容需要 git 基础知识。 GitHub 创建个人仓库 登陆 GitHub，创建新仓库，仓库名为：用户名.github.io">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-02-21T04:55:00.000Z">
+<meta property="article:modified_time" content="2020-09-13T15:37:32.560Z">
+<meta property="article:author" content="WinterTee">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="冬茶">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://www.wintertee.top/2020/02/21/hexo%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>Hexo配置笔记 | 冬茶的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">冬茶的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://www.wintertee.top/2020/02/21/hexo%E9%85%8D%E7%BD%AE%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="WinterTee">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冬茶的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hexo配置笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-21 12:55:00" itemprop="dateCreated datePublished" datetime="2020-02-21T12:55:00+08:00">2020-02-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-13 23:37:32" itemprop="dateModified" datetime="2020-09-13T23:37:32+08:00">2020-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="安装-hexo-博客">1. 安装 Hexo 博客</h2>
+<p>以下内容需要 git 基础知识。</p>
+<h3 id="github-创建个人仓库">GitHub 创建个人仓库</h3>
+<p>登陆 GitHub，创建新仓库，仓库名为：用户名.github.io</p>
+<a id="more"></a>
+<h3 id="在本地安装-git-和-node.js">在本地安装 git 和 Node.js</h3>
+<p>首先在你的本地计算机上安装 git 和 Node.js，过程省略。</p>
+<p>git 安装完毕后，设置user.name和user.email配置信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;你的GitHub用户名&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;你的GitHub注册邮箱&quot;</span></span><br></pre></td></tr></table></figure>
+<p>生成ssh密钥文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -C <span class="string">&quot;你的GitHub注册邮箱&quot;</span></span><br></pre></td></tr></table></figure>
+<p>然后直接三个回车即可，默认不需要设置密码<br />
+然后找到生成的.ssh的文件夹中的id_rsa.pub密钥，将内容全部复制。<br />
+打开GitHub_Settings_keys 页面，新建new SSH Key。<br />
+Title为标题，任意填即可，将刚刚复制的id_rsa.pub内容粘贴进去，最后点击Add SSH key。<br />
+在Git Bash中检测GitHub公钥设置是否成功，输入 ssh git@github.com 检测。</p>
+<h3 id="在本地安装-hexo">在本地安装 Hexo</h3>
+<p>使用npm命令安装Hexo，输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+<p>安装完毕后进入一个存放博客的文件夹。输入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo init blog</span><br></pre></td></tr></table></figure>
+<p>则会在当前目录创建一个 blog 文件夹。进入这个文件夹后输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g \\to generate</span><br><span class="line">hexo s \\to start a server</span><br></pre></td></tr></table></figure>
+<p>完成后，打开浏览器输入地址：<localhost:4000> 即可看到你的 Hexo 博客。</p>
+<h3 id="在服务器配置git">在服务器配置git</h3>
+<p>首先在服务器上安装好 git，并配置好全局 git 的用户名和邮箱，如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name <span class="string">&quot;your name&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;your email&quot;</span></span><br></pre></td></tr></table></figure>
+<p>创建 git 用户：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adduser git</span><br></pre></td></tr></table></figure>
+<p>新建相关目录和权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mkdir /home/git</span><br><span class="line"><span class="built_in">cd</span> /home/git</span><br><span class="line">git init --bare hexo.git</span><br><span class="line">chown -R git:git hexo.git</span><br><span class="line">chown -R git:git /home/wwwroot/default</span><br></pre></td></tr></table></figure>
+<p>获取本地机器 SSH 的公钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat ~/.ssh/id_rsa.pub</span><br></pre></td></tr></table></figure>
+<p>复制公钥，将公钥写入服务器的 /home/git/.ssh/authorized_keys 文件中。<br />
+在 /home/git/hexo.git/hooks/post-receive 文件中写入：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">git --work-tree=/home/wwwroot/default --git-dir=/home/git/hexo.git checkout -f</span><br></pre></td></tr></table></figure>
+<h3 id="完成本地部署配置">完成本地部署配置</h3>
+<p>修改本地机器上的 _config.yml 文件，在 deploy 块中添加服务器上刚创建的 hexo.git 仓库和 GitHub 仓库：</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span></span><br><span class="line">        <span class="attr">github:</span> <span class="string">git@github.com:用户名/仓库名.git,master</span></span><br><span class="line">        <span class="attr">hexo:</span> <span class="string">git@域名:/home/git/hexo.git,master</span></span><br></pre></td></tr></table></figure>
+<p>之后每次发布博客时，只需要在本地执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure>
+<p>即可完成在 GitHub 和 服务器上的自动部署。</p>
+<p>将_config.yml中的post_asset_folder选项置为true</p>
+<p>这样可以方便地为每篇博文配图。</p>
+<h3 id="增加一个live2d">增加一个live2d</h3>
+<p>参考<a target="_blank" rel="noopener" href="https://lexburner.github.io/live2d/">一个看板娘入住你的个人博客只需要三步</a></p>
+<h2 id="使用-github-完成多终端同步-hexo">2. 使用 GitHub 完成多终端同步 Hexo</h2>
+<p>首先在博客根目录下新建 <code>.gitignore</code> 文件，我的内容如下：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">db.json</span><br><span class="line">*.log</span><br><span class="line">node_modules/</span><br><span class="line">public/</span><br><span class="line">.deploy*/</span><br></pre></td></tr></table></figure>
+<p>在博客根目录下配置仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git init  //初始化本地仓库</span><br><span class="line">git add -A</span><br><span class="line">git commit -m <span class="string">&quot;Blog Source Hexo&quot;</span></span><br><span class="line">git branch hexo  //新建hexo分支</span><br><span class="line">git checkout hexo  //切换到hexo分支上</span><br><span class="line">git remote add origin git@github.com:yourname/yourname.github.io.git  //将本地与Github项目对接</span><br><span class="line">git push origin hexo  //push到Github项目的hexo分支上</span><br></pre></td></tr></table></figure>
+<p>在另一终端完成clone和push更新</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b hexo git@github.com:yourname/yourname.github.io.git  //将Github中hexo分支<span class="built_in">clone</span>到本地</span><br><span class="line"><span class="built_in">cd</span>  yourname.github.io  //切换到刚刚<span class="built_in">clone</span>的文件夹内</span><br><span class="line">npm install    //注意，这里一定要切换到刚刚<span class="built_in">clone</span>的文件夹内执行，安装必要的所需组件，不用再init</span><br><span class="line">hexo new post <span class="string">&quot;new blog name&quot;</span>   //新建一个.md文件，并编辑完成自己的博客内容</span><br><span class="line">git add <span class="built_in">source</span>  //经测试每次只要更新<span class="built_in">source</span>中的文件到Github中即可，因为只是新建了一篇新博客</span><br><span class="line">git commit -m <span class="string">&quot;XX&quot;</span></span><br><span class="line">git push origin hexo  //更新分支</span><br><span class="line">hexo d -g   //push更新完分支之后将自己写的博客对接到自己搭的博客网站上，同时同步了Github中的master</span><br></pre></td></tr></table></figure>
+<p>不同终端间愉快地玩耍</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git pull origin hexo  //先pull完成本地与远端的融合</span><br><span class="line">hexo new post <span class="string">&quot; new blog name&quot;</span></span><br><span class="line">git add <span class="built_in">source</span></span><br><span class="line">git commit -m <span class="string">&quot;XX&quot;</span></span><br><span class="line">git push origin hexo</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="references">references</h3>
+<ol type="1">
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26625249" class="uri">https://zhuanlan.zhihu.com/p/26625249</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/58654392" class="uri">https://zhuanlan.zhihu.com/p/58654392</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5cf20649f328" class="uri">https://www.jianshu.com/p/5cf20649f328</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Monkey_LZL/article/details/60870891" class="uri">https://blog.csdn.net/Monkey_LZL/article/details/60870891</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yanbinghu.com/2017/03/31/36088.html" class="uri">https://www.yanbinghu.com/2017/03/31/36088.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://righere.github.io/2016/10/10/install-hexo/" class="uri">https://righere.github.io/2016/10/10/install-hexo/</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+              <a href="/tags/%E5%86%AC%E8%8C%B6/" rel="tag"># 冬茶</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/21/%E5%9C%A8%20CentOS%20%E4%B8%8A%E9%83%A8%E7%BD%B2%20shadowsocks-libev%20+%20v2ray-plugin%20+%20nginx/" rel="prev" title="在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo">
+      <i class="fa fa-chevron-left"></i> 在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/22/%E5%A6%82%E4%BD%95%E5%9C%A8%20Hexo%20%E4%B8%AD%E5%BC%80%E5%90%AF%E2%80%9C%E5%A4%9A%E4%BD%9C%E8%80%85%E6%A8%A1%E5%BC%8F%E2%80%9D/" rel="next" title="如何在 Hexo 中开启“多作者模式”">
+      如何在 Hexo 中开启“多作者模式” <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-hexo-%E5%8D%9A%E5%AE%A2"><span class="nav-number">1.</span> <span class="nav-text">1. 安装 Hexo 博客</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#github-%E5%88%9B%E5%BB%BA%E4%B8%AA%E4%BA%BA%E4%BB%93%E5%BA%93"><span class="nav-number">1.1.</span> <span class="nav-text">GitHub 创建个人仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85-git-%E5%92%8C-node.js"><span class="nav-number">1.2.</span> <span class="nav-text">在本地安装 git 和 Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85-hexo"><span class="nav-number">1.3.</span> <span class="nav-text">在本地安装 Hexo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AEgit"><span class="nav-number">1.4.</span> <span class="nav-text">在服务器配置git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%88%90%E6%9C%AC%E5%9C%B0%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.</span> <span class="nav-text">完成本地部署配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E4%B8%80%E4%B8%AAlive2d"><span class="nav-number">1.6.</span> <span class="nav-text">增加一个live2d</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-github-%E5%AE%8C%E6%88%90%E5%A4%9A%E7%BB%88%E7%AB%AF%E5%90%8C%E6%AD%A5-hexo"><span class="nav-number">2.</span> <span class="nav-text">2. 使用 GitHub 完成多终端同步 Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#references"><span class="nav-number">2.1.</span> <span class="nav-text">references</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">WinterTee</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinterTee</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.wintertee.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="所有代码可以在我的Github上下载，也可以直接在 Google Colab 中打开 本节内容  密集神经网络 DNN(Deep neural network) K折交叉验证 K-fold cross-validation 手动的超参数优化 一些防止过拟合的方法：  L2 正则化 (L2 regularization) Dropout （虚假的） Early stopping">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用DNN学习Fashion MNIST dataset">
+<meta property="og:url" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/index.html">
+<meta property="og:site_name" content="冬茶的博客">
+<meta property="og:description" content="所有代码可以在我的Github上下载，也可以直接在 Google Colab 中打开 本节内容  密集神经网络 DNN(Deep neural network) K折交叉验证 K-fold cross-validation 手动的超参数优化 一些防止过拟合的方法：  L2 正则化 (L2 regularization) Dropout （虚假的） Early stopping">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_13_0.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_24_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_27_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_30_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_32_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_35_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_38_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_40_1.png">
+<meta property="og:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_47_1.png">
+<meta property="article:published_time" content="2020-02-20T12:57:02.000Z">
+<meta property="article:modified_time" content="2020-09-13T15:36:50.530Z">
+<meta property="article:author" content="WinterTee">
+<meta property="article:tag" content="冬茶">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/output_13_0.png">
+
+<link rel="canonical" href="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'default'
+  };
+</script>
+
+  <title>使用DNN学习Fashion MNIST dataset | 冬茶的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">冬茶的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="default">
+    <link itemprop="mainEntityOfPage" href="https://www.wintertee.top/2020/02/20/%E4%BD%BF%E7%94%A8DNN%E5%AD%A6%E4%B9%A0Fashion-MNIST-dataset/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="WinterTee">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冬茶的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用DNN学习Fashion MNIST dataset
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-20 20:57:02" itemprop="dateCreated datePublished" datetime="2020-02-20T20:57:02+08:00">2020-02-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-09-13 23:36:50" itemprop="dateModified" datetime="2020-09-13T23:36:50+08:00">2020-09-13</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>所有代码可以在我的Github上<a target="_blank" rel="noopener" href="https://github.com/wintertee/ML-notes/blob/master/1.fashion_minst.ipynb">下载</a>，也可以直接在 Google Colab 中<a target="_blank" rel="noopener" href="https://colab.research.google.com/github/wintertee/ML-notes/blob/master/1.fashion_minst.ipynb">打开</a></p>
+<h1 id="本节内容">本节内容</h1>
+<ul>
+<li>密集神经网络 DNN(Deep neural network)</li>
+<li>K折交叉验证 K-fold cross-validation</li>
+<li>手动的超参数优化</li>
+<li>一些防止过拟合的方法：
+<ul>
+<li>L2 正则化 (L2 regularization)</li>
+<li>Dropout</li>
+<li>（虚假的） Early stopping</li>
+</ul></li>
+</ul>
+<a id="more"></a>
+<p>相关文档：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://keras.io/">Keras文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/zalandoresearch/fashion-mnist">Fashion MNIST dataset</a></li>
+</ul>
+<p>在 Google Colab 中运行，需要将 TensorFlow 版本设置为2.0:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">sys.path[<span class="number">0</span>] = <span class="string">&#x27;/tensorflow-2.1.0/python3.6&#x27;</span> <span class="comment"># 添加系统变量</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> distutils.version <span class="keyword">import</span> StrictVersion</span><br><span class="line"><span class="keyword">import</span> tensorflow</span><br><span class="line"><span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line"><span class="keyword">assert</span> StrictVersion(tensorflow.__version__) &gt;= StrictVersion(<span class="string">&#x27;2.0&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="导入数据集">1. 导入数据集</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(train_images, train_labels), (test_images, test_labels) = keras.datasets.fashion_mnist.load_data()</span><br></pre></td></tr></table></figure>
+<p>数据以 NumPy 数组的形式保存。</p>
+<p>训练集 <code>train_images</code> 共有 60000 个图像，测试集 <code>test_images</code> 共有10000个图像，图像为 28 * 28 像素的灰度图。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">&#x27;The type of train_images is&#x27;</span>, type(train_images))</span><br><span class="line">print(<span class="string">&#x27;The type of train_labels is&#x27;</span>, type(train_labels))</span><br><span class="line">print()</span><br><span class="line">print(<span class="string">&#x27;train_images.shape =&#x27;</span>, train_images.shape)</span><br><span class="line">print(<span class="string">&#x27;train_labels.shape =&#x27;</span>, train_labels.shape)</span><br><span class="line">print(<span class="string">&#x27;test_images.shape =&#x27;</span>, test_images.shape)</span><br><span class="line">print(<span class="string">&#x27;test_labels.shape =&#x27;</span>, test_labels.shape)</span><br></pre></td></tr></table></figure>
+<pre><code>The type of train_images is &lt;class &#39;numpy.ndarray&#39;&gt;
+The type of train_labels is &lt;class &#39;numpy.ndarray&#39;&gt;
+
+train_images.shape = (60000, 28, 28)
+train_labels.shape = (60000,)
+test_images.shape = (10000, 28, 28)
+test_labels.shape = (10000,)</code></pre>
+<p>其中每个图像的标签是范围在 0～9 的整数，以 NumPy 数组保存。为了方便，定义一个字典 <code>labels_dict</code> 以查找标签对应的衣服类型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_labels</span><br></pre></td></tr></table></figure>
+<pre><code>array([9, 0, 0, ... , 3, 0, 5], dtype=uint8)</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">labels_dict = &#123; <span class="number">0</span>: <span class="string">&#x27;T-shirt/top&#x27;</span>, <span class="number">1</span>: <span class="string">&#x27;Trouser&#x27;</span>, <span class="number">2</span>: <span class="string">&#x27;Pullover&#x27;</span>, <span class="number">3</span>: <span class="string">&#x27;Dress&#x27;</span>, <span class="number">4</span>: <span class="string">&#x27;Coat&#x27;</span>, <span class="number">5</span>: <span class="string">&#x27;Sandal&#x27;</span>, <span class="number">6</span>: <span class="string">&#x27;Shirt&#x27;</span>, <span class="number">7</span>: <span class="string">&#x27;Sneaker&#x27;</span>, <span class="number">8</span>: <span class="string">&#x27;Bag&#x27;</span>, <span class="number">9</span>: <span class="string">&#x27;Ankle boot&#x27;</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>对每个类别，找到一个图像作可视化：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">nrows = <span class="number">2</span></span><br><span class="line">ncols = math.ceil(len(labels_dict)//<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(labels_dict)): <span class="comment"># 遍历所有类别</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(len(train_images)): <span class="comment"># 遍历测试集，找到符合第i个类别的图像</span></span><br><span class="line">        <span class="keyword">if</span> train_labels[j] == i:</span><br><span class="line">            plt.subplot(nrows, ncols, i + <span class="number">1</span>)</span><br><span class="line">            plt.xticks([]) <span class="comment"># 禁用 X 轴坐标轴刻度</span></span><br><span class="line">            plt.yticks([]) <span class="comment"># 禁用 Y 轴坐标轴刻度</span></span><br><span class="line">            plt.grid(<span class="literal">False</span>) <span class="comment"># 禁用网格，这里其实没有必要，因为已经没有刻度了。</span></span><br><span class="line">            plt.imshow(train_images[j], cmap=plt.cm.gray)</span><br><span class="line">            plt.xlabel(labels_dict[i])</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="output_13_0.png" /></p>
+<h1 id="数据集预处理">2. 数据集预处理</h1>
+<p>因为数据已经是张量的形式，所以无需再次数据张量化。</p>
+<p>为了方便训练神经网络，使用数据归一化 (Normalization)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">train_images = train_images.astype(<span class="string">&#x27;float32&#x27;</span>) / <span class="number">255</span></span><br><span class="line">test_images = test_images.astype(<span class="string">&#x27;float32&#x27;</span>) /<span class="number">255</span></span><br></pre></td></tr></table></figure>
+<h1 id="构建并评估模型">3. 构建并评估模型</h1>
+<h2 id="基于常识的简单基准方法">3.1 基于常识的简单基准方法</h2>
+<p>一个基于常识的简单基准方法是随机数：这样的准确率是1/10，即10%。</p>
+<h2 id="密集连接网络">3.2 密集连接网络</h2>
+<h3 id="第一个模型">3.2.1 第一个模型</h3>
+<ul>
+<li><p>输入层：因为每个图像都是二维张量的形式，进入 <code>Dense</code> 层之前需要将数据展平为一维张量（向量）的形式。可以使用两种方法：</p>
+<ol type="1">
+<li>使用 <code>Flatten</code> 层<br />
+</li>
+<li>使用 <code>numpy.ndarray.reshape()</code> 方法预处理数据</li>
+</ol>
+<p>这里使用第一种方法。</p></li>
+<li><p>中间层： 一个或两个 <code>Dense</code> 层，使用 <code>relu</code> 函数激活。<br />
+</p></li>
+<li><p>输出层：输出10个概率，对应10个类别，概率总和为1。所以最后一层是10路由 <code>softmax</code> 函数激活的 <code>Dense</code> 层。<br />
+</p></li>
+<li><p>优化器：adam（Adaptive Moment Estimation) 似乎是当前最先进的优化器。<br />
+</p></li>
+<li><p>损失函数：由于目标是整数标量编码，所以使用 sparse_categorical_crossentropy。 <a target="_blank" rel="noopener" href="https://jovianlin.io/cat-crossentropy-vs-sparse-cat-crossentropy/">与categorical_crossentropy的区别</a><br />
+</p></li>
+<li><p>评估标准：本例只关心精度，即正确分类的图像所占的比例。</p></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_model</span>(<span class="params">middle_units_1=<span class="number">0</span>, regularizer_1=None, dropout_1=<span class="number">0</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">                middle_units_2=<span class="number">0</span>, regularizer_2=None, dropout_2=<span class="number">0</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">                summary=False</span>):</span></span><br><span class="line">  model = models.Sequential()</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 输入层</span></span><br><span class="line">  model.add(layers.Flatten(input_shape=(<span class="number">28</span>, <span class="number">28</span>))) </span><br><span class="line"></span><br><span class="line">  <span class="comment"># 第一个中间层</span></span><br><span class="line">  <span class="keyword">if</span> middle_units_1:</span><br><span class="line">    model.add(layers.Dense(middle_units_1, activation=<span class="string">&#x27;relu&#x27;</span>, kernel_regularizer=regularizer_1)) </span><br><span class="line">  <span class="keyword">if</span> dropout_1:</span><br><span class="line">    model.add(layers.Dropout(dropout_1))</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 第二个中间层</span></span><br><span class="line">  <span class="keyword">if</span> middle_units_2:</span><br><span class="line">    model.add(layers.Dense(middle_units_2, activation=<span class="string">&#x27;relu&#x27;</span>, kernel_regularizer=regularizer_2))</span><br><span class="line">  <span class="keyword">if</span> dropout_2:</span><br><span class="line">    model.add(layers.Dropout(dropout_2))</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 输出层</span></span><br><span class="line">  model.add(layers.Dense(<span class="number">10</span>, activation=<span class="string">&#x27;softmax&#x27;</span>)) </span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> summary:</span><br><span class="line">    model.summary()</span><br><span class="line">  model.compile(optimizer = <span class="string">&#x27;adam&#x27;</span>,</span><br><span class="line">                loss = <span class="string">&#x27;sparse_categorical_crossentropy&#x27;</span>,</span><br><span class="line">                metrics=[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">  <span class="keyword">return</span> model</span><br></pre></td></tr></table></figure>
+<p>由于测试集只有60000个，为了避免样本噪声 (sampling noise)，使用<strong>K折交叉验证</strong> (K-fold cross validation)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">k_fold_val</span>(<span class="params">k, data, labels, </span></span></span><br><span class="line"><span class="function"><span class="params">               middle_units_1=<span class="number">0</span>, regularizer_1=None, dropout_1=<span class="number">0</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">               middle_units_2=<span class="number">0</span>, regularizer_2=None, dropout_2=<span class="number">0</span>, </span></span></span><br><span class="line"><span class="function"><span class="params">               epochs=<span class="number">10</span></span>):</span></span><br><span class="line">  <span class="keyword">assert</span> len(data) == len(labels)</span><br><span class="line"></span><br><span class="line">  len_per_fold = len(data) // k</span><br><span class="line">  histories = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> i <span class="keyword">in</span> range(k):</span><br><span class="line"></span><br><span class="line">    <span class="comment"># data split</span></span><br><span class="line">    print(<span class="string">&#x27;Iteration:&#x27;</span>,i+<span class="number">1</span>,<span class="string">&#x27;/&#x27;</span>,k)</span><br><span class="line">    val_data = data[i*len_per_fold: (i+<span class="number">1</span>)*len_per_fold]</span><br><span class="line">    val_labels = labels[i*len_per_fold: (i+<span class="number">1</span>)*len_per_fold]</span><br><span class="line">    train_data = np.concatenate((data[: i * len_per_fold], data[(i + <span class="number">1</span>) * len_per_fold: ]))</span><br><span class="line">    train_labels = np.concatenate((labels[: i * len_per_fold], labels[(i + <span class="number">1</span>) * len_per_fold: ]))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># build model</span></span><br><span class="line">    model = build_model(middle_units_1, regularizer_1, dropout_1, </span><br><span class="line">                        middle_units_2, regularizer_2, dropout_2)</span><br><span class="line">    histories.append(model.fit(train_data, train_labels, epochs=epochs, batch_size=<span class="number">128</span>, </span><br><span class="line">                                 validation_data=(val_data, val_labels), verbose=<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> histories</span><br></pre></td></tr></table></figure>
+<p>为了方便训练结果的可视化，定义函数 <code>visualize()</code> ，它同时包含了通过 <code>val_loss</code> 的变化判断过拟合的功能。<a target="_blank" rel="noopener" href="https://blog.csdn.net/quiet_girl/article/details/86138489">（为什么？）</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">visualize</span>(<span class="params">histories</span>):</span></span><br><span class="line"></span><br><span class="line">  accuracy = []</span><br><span class="line">  val_accuracy = []</span><br><span class="line">  loss = []</span><br><span class="line">  val_loss = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> history <span class="keyword">in</span> histories:</span><br><span class="line">    accuracy.append(history.history[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">    val_accuracy.append(history.history[<span class="string">&#x27;val_accuracy&#x27;</span>])</span><br><span class="line">    loss.append(history.history[<span class="string">&#x27;loss&#x27;</span>])</span><br><span class="line">    val_loss.append(history.history[<span class="string">&#x27;val_loss&#x27;</span>])</span><br><span class="line">  </span><br><span class="line">  accuracy = np.mean(accuracy, axis=<span class="number">0</span>)</span><br><span class="line">  val_accuracy = np.mean(val_accuracy, axis=<span class="number">0</span>)</span><br><span class="line">  loss = np.mean(loss, axis=<span class="number">0</span>)</span><br><span class="line">  val_loss = np.mean(val_loss, axis=<span class="number">0</span>)</span><br><span class="line">  epochs = range(<span class="number">1</span>, len(loss) + <span class="number">1</span>)</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 暂时没有找到对 k-fold 的 Early stopping 的方法，只好手动了。</span></span><br><span class="line">  <span class="comment"># 如果在一轮后的10轮内，val_loss不再下降，给出 Overfitting warning</span></span><br><span class="line">  x = []</span><br><span class="line">  y = []</span><br><span class="line">  patience = <span class="number">10</span></span><br><span class="line">  i = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> i <span class="keyword">in</span> range(len(val_loss) - patience):</span><br><span class="line">    flag = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">1</span>, patience + <span class="number">1</span>):</span><br><span class="line">      <span class="keyword">if</span> val_loss[i] * <span class="number">0.98</span> &gt; val_loss[i + j]: <span class="comment"># 在之后的10轮中，下降不超过2%，视为过拟合</span></span><br><span class="line">        flag = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">break</span> </span><br><span class="line">    <span class="keyword">if</span> flag ==<span class="literal">True</span>:</span><br><span class="line">      x.append(i + <span class="number">1</span>)</span><br><span class="line">      y.append(val_loss[i])</span><br><span class="line">      print(<span class="string">&#x27;Overfitting warning at epoch %d, val_loss: %.3f, val_accuracy: %.3f&#x27;</span> % (i+<span class="number">1</span>, val_loss[i], val_accuracy[i]))  </span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">  plt.figure(figsize=(<span class="number">12</span>, <span class="number">4</span>))</span><br><span class="line"></span><br><span class="line">  plt.subplot(<span class="number">1</span>,<span class="number">2</span>,<span class="number">1</span>)</span><br><span class="line">  plt.plot(epochs, loss, <span class="string">&#x27;o&#x27;</span>, label = <span class="string">&#x27;loss&#x27;</span>)</span><br><span class="line">  plt.plot(epochs,val_loss, label = <span class="string">&#x27;val_loss&#x27;</span>)</span><br><span class="line">  plt.scatter(x,y,c=<span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">  plt.title(<span class="string">&#x27;Training and validation loss&#x27;</span>)</span><br><span class="line">  plt.xlabel(<span class="string">&#x27;Epochs&#x27;</span>)</span><br><span class="line">  plt.ylabel(<span class="string">&#x27;Loss&#x27;</span>)</span><br><span class="line">  plt.legend()</span><br><span class="line">  plt.grid(<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">  plt.subplot(<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">  plt.plot(epochs, accuracy, <span class="string">&#x27;o&#x27;</span>, label = <span class="string">&#x27;accuracy&#x27;</span>)</span><br><span class="line">  plt.plot(epochs,val_accuracy, label = <span class="string">&#x27;val_accuracy&#x27;</span>)</span><br><span class="line">  plt.scatter(x, [val_accuracy[x[<span class="number">0</span>]<span class="number">-1</span>]], c=<span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">  plt.title(<span class="string">&#x27;Training and validation accuracy&#x27;</span>)</span><br><span class="line">  plt.xlabel(<span class="string">&#x27;Epochs&#x27;</span>)</span><br><span class="line">  plt.ylabel(<span class="string">&#x27;Accuracy&#x27;</span>)</span><br><span class="line">  plt.legend()</span><br><span class="line">  plt.grid(<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">  plt.show()</span><br></pre></td></tr></table></figure>
+<p>先使用一层中间层，隐藏单元64个。训练40次</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">k = <span class="number">5</span></span><br><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">64</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 15, val_loss: 0.329, val_accuracy: 0.883</code></pre>
+<p><img src="output_24_1.png" /></p>
+<p>从第15轮后开始， <code>val_loss</code> 不再下降，模型过拟合。这个模型在验证集上的最终精度是88.3%，精确度能不能再提高？</p>
+<h3 id="使用正则化降低拟合速度">3.2.2 使用正则化降低拟合速度</h3>
+<p>增加L2正则化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">64</span>, regularizer_1=keras.regularizers.l2(<span class="number">0.001</span>), epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 24, val_loss: 0.391, val_accuracy: 0.879</code></pre>
+<p><img src="output_27_1.png" /></p>
+<p>可以看到模型在第24轮后过拟合。过拟合明显变慢。在验证集上的精度是87.9%</p>
+<p>再试试使用 Dropout 正则化, Dropout 比率0.2：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">64</span>, dropout_1=<span class="number">0.2</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 15, val_loss: 0.319, val_accuracy: 0.885</code></pre>
+<p><img src="output_30_1.png" /></p>
+<p>模型在第15轮后过拟合，过拟合速度并没有减慢。是因为 dropout 比率太小的原因吗？把 Dropout 比率提高到0.4:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">64</span>, dropout_1=<span class="number">0.4</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 20, val_loss: 0.334, val_accuracy: 0.880</code></pre>
+<p><img src="output_32_1.png" /></p>
+<p>模型过拟合的速度慢了，可是验证集精度没有上升。</p>
+<h3 id="小结">小结：</h3>
+<ol type="1">
+<li>L2 正则化和 Dropout 都可以减慢拟合速度。参数越大，拟合越慢。</li>
+<li>L2 正则化和 Dropout 都没有带来更好的精度。原因可能是神经网络太小，需要增加神经网络隐藏单元或者层数。</li>
+<li>使用 Dropout 后，开始阶段验证集的精度比训练集好，这是因为只有在训练集上 Dropout 层起作用，在验证集上不经过 Dropout 层。</li>
+</ol>
+<h3 id="调节神经网络大小">3.2.3 调节神经网络大小</h3>
+<p>在上面的例子中，精度仍然不够高。尝试增加一些隐藏单元到256个，同时保留 Dropout 层。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">256</span>, dropout_1=<span class="number">0.4</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 20, val_loss: 0.295, val_accuracy: 0.895</code></pre>
+<p><img src="output_35_1.png" /></p>
+<p>在验证集上的精度为89.5%，4倍的隐藏单元只带来了 1% 精度的提升。效果并不好。</p>
+<p>再试试如果只增加一层中间层：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">64</span>, dropout_1=<span class="number">0.2</span>, middle_units_2=<span class="number">64</span>, dropout_2=<span class="number">0.2</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 20, val_loss: 0.318, val_accuracy: 0.886</code></pre>
+<p><img src="output_38_1.png" /></p>
+<p>效果也不好。两层各256个单元试试：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">visualize(k_fold_val(k, train_images, train_labels, middle_units_1=<span class="number">256</span>, dropout_1=<span class="number">0.2</span>, middle_units_2=<span class="number">256</span>, dropout_2=<span class="number">0.2</span>, epochs=<span class="number">40</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>Iteration: 1 / 5
+Iteration: 2 / 5
+Iteration: 3 / 5
+Iteration: 4 / 5
+Iteration: 5 / 5
+Overfitting warning at epoch 12, val_loss: 0.299, val_accuracy: 0.892</code></pre>
+<p><img src="output_40_1.png" /></p>
+<h3 id="小结-1">3.2.4 小结</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">编号</th>
+<th>模型（中间层）</th>
+<th style="text-align: center;">验证集精度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td>dense(64)</td>
+<td style="text-align: center;">88.3%</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td>dense(64) with L2</td>
+<td style="text-align: center;">87.9%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td>dense(64) with Dropout</td>
+<td style="text-align: center;">88.5%</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td>dense(256) with Dropout</td>
+<td style="text-align: center;">89.5%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td>dense(64)-dense(64) with Dropout</td>
+<td style="text-align: center;">88.6%</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">6</td>
+<td>dense(256)-dense(256) with Dropout</td>
+<td style="text-align: center;">89.2%</td>
+</tr>
+</tbody>
+</table>
+<p>无论怎样增大神经网络，验证集的精度都不会超过90%。选择表现最好的模型4在测试集上测试。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model = build_model(<span class="number">256</span>, dropout_1=<span class="number">0.4</span>, summary=<span class="literal">True</span>)</span><br><span class="line">model.fit(train_images, train_labels, batch_size=<span class="number">128</span>, epochs=<span class="number">20</span>, verbose=<span class="number">0</span>)</span><br><span class="line">model.evaluate(test_images, test_labels)</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_35&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+flatten_35 (Flatten)         (None, 784)               0         
+_________________________________________________________________
+dense_80 (Dense)             (None, 256)               200960    
+_________________________________________________________________
+dropout_35 (Dropout)         (None, 256)               0         
+_________________________________________________________________
+dense_81 (Dense)             (None, 10)                2570      
+=================================================================
+Total params: 203,530
+Trainable params: 203,530
+Non-trainable params: 0
+_________________________________________________________________
+10000/10000 [==============================] - 1s 66us/sample - loss: 0.3279 - accuracy: 0.8864
+
+[0.3279034249544144, 0.8864]</code></pre>
+<p>在测试集上的精度 88.6% 和之前在交叉验证中的精确度 89.5% 相近。模型没有在交叉验证的验证集上过拟合。</p>
+<h2 id="第二类模型卷积神经网络">3.3 第二类模型：卷积神经网络</h2>
+<p>对于计算机视觉问题，通常卷积神经网络会有更好的效果。<br />
+2D卷积层 <code>Conv2D</code> 的输入是一个四维张量： <code>(batch, rows, cols, channels)</code> ，所以需要将图像数据拓展一个维度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">train_images = np.expand_dims(train_images, axis=<span class="number">3</span>)</span><br><span class="line">test_images = np.expand_dims(test_images, axis=<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>这里只试验一个模型，不再调节超参数。(所以不需要分割出验证集，这里直接把测试集当作验证集了。）<br />
+另外由于卷积网络的训练较为耗时，进行k折交叉验证还会增加k倍计算量，所以不进行交叉验证。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Conv2D(<span class="number">32</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">&#x27;relu&#x27;</span>, input_shape=(<span class="number">28</span>, <span class="number">28</span>, <span class="number">1</span>)))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">&#x27;relu&#x27;</span>))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">&#x27;relu&#x27;</span>))</span><br><span class="line">model.add(layers.Flatten())</span><br><span class="line">model.add(layers.Dropout(<span class="number">0.3</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">&#x27;relu&#x27;</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">10</span>, activation=<span class="string">&#x27;softmax&#x27;</span>))</span><br><span class="line">model.summary()</span><br><span class="line">model.compile(optimizer = <span class="string">&#x27;adam&#x27;</span>,</span><br><span class="line">              loss = <span class="string">&#x27;sparse_categorical_crossentropy&#x27;</span>,</span><br><span class="line">              metrics=[<span class="string">&#x27;accuracy&#x27;</span>])</span><br><span class="line">history = model.fit(train_images, train_labels, epochs=<span class="number">30</span>, batch_size=<span class="number">128</span>, </span><br><span class="line">                    validation_data=(test_images, test_labels), verbose=<span class="number">0</span>)</span><br><span class="line">visualize([history])</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_37&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_3 (Conv2D)            (None, 26, 26, 32)        320       
+_________________________________________________________________
+max_pooling2d_2 (MaxPooling2 (None, 13, 13, 32)        0         
+_________________________________________________________________
+conv2d_4 (Conv2D)            (None, 11, 11, 64)        18496     
+_________________________________________________________________
+max_pooling2d_3 (MaxPooling2 (None, 5, 5, 64)          0         
+_________________________________________________________________
+conv2d_5 (Conv2D)            (None, 3, 3, 64)          36928     
+_________________________________________________________________
+flatten_37 (Flatten)         (None, 576)               0         
+_________________________________________________________________
+dropout_37 (Dropout)         (None, 576)               0         
+_________________________________________________________________
+dense_84 (Dense)             (None, 64)                36928     
+_________________________________________________________________
+dense_85 (Dense)             (None, 10)                650       
+=================================================================
+Total params: 93,322
+Trainable params: 93,322
+Non-trainable params: 0
+_________________________________________________________________
+Overfitting warning at epoch 18, val_loss: 0.227, val_accuracy: 0.921</code></pre>
+<p><img src="output_47_1.png" /></p>
+<p>这个卷积神经网络的精度为92.1%，已经显著高于任何一个使用过的密集神经网络的例子。</p>
+<h1 id="总结">4. 总结</h1>
+<ol type="1">
+<li>在这个实践中没有考虑优化器、学习率和激活函数对神经网络造成的影响。</li>
+<li>通过正则化防止过拟合的方法在没有很快过拟合的神经网络上（似乎）并不能提高模型的性能。此时模型的性能瓶颈（可能）在模型架构、模型大小以及数据的特征提取上。</li>
+<li>验证集上的 loss 函数在接下来的几个 epoch 上不再减小 是判断是否过拟合的一个很好的方式。</li>
+<li>在计算机视觉问题上，卷积网络要比密集网络效果好。</li>
+<li>调节超参数耗时耗力，应当考虑搭配其他的机器学习库完成自动调整超参数。</li>
+</ol>
+<p>这里引用 《Deep Learning with Python》(Francois_Chollet)中文版的一段话：</p>
+<blockquote>
+<p>整天调节超参数不应该是人类的工作，最好留给机器去做。</p>
+<p>超参数优化的过程[…]的关键在于，给定许多组超参数，使用验证性能的历史来选择下一组需要评估的超参数的算法。有多种不同的技术可供选择: 贝叶斯优化、遗传算法、简单随机搜索等。</p>
+<p>这些挑战非常困难，而这个领域还很年轻，因此我们目前只能使用非常有限的工具来优化模型。通常情况下，随机搜索(随机选择需要评估的超参数，并重复这一过程)就是最好的 解决方案，虽然这也是最简单的解决方案。但我发现有一种工具确实比随机搜索更好，它就是 Hyperopt。它是一个用于超参数优化的Python 库，其内部使用 Parzen 估计器的树来预测哪组超 参数可能会得到好的结果。另一个叫作 Hyperas 的库将 Hyperopt 与 Keras 模型集成在一起。一定要试试。</p>
+</blockquote>
+<ol start="3" type="1">
+<li>机器学习太费 GPU 了，这个 notebook 在 Google Colab 上大概要跑20分钟左右才能跑完。。但是又没有钱买 2080Ti，下次白嫖 kaggle 的 GPU 试试。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%86%AC%E8%8C%B6/" rel="tag"># 冬茶</a>
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/20/%E6%AD%A6%E6%B1%89%E8%AE%B0%E5%BF%86-2020/" rel="prev" title="武汉记忆 2020">
+      <i class="fa fa-chevron-left"></i> 武汉记忆 2020
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/02/21/%E5%9C%A8%20CentOS%20%E4%B8%8A%E9%83%A8%E7%BD%B2%20shadowsocks-libev%20+%20v2ray-plugin%20+%20nginx/" rel="next" title="在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo">
+      在 CentOS 上部署 shadowsocks-libev + v2ray-plugin + nginx + Hexo <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E8%8A%82%E5%86%85%E5%AE%B9"><span class="nav-number">1.</span> <span class="nav-text">本节内容</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">2.</span> <span class="nav-text">1. 导入数据集</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">2. 数据集预处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%B9%B6%E8%AF%84%E4%BC%B0%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">3. 构建并评估模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%B8%B8%E8%AF%86%E7%9A%84%E7%AE%80%E5%8D%95%E5%9F%BA%E5%87%86%E6%96%B9%E6%B3%95"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 基于常识的简单基准方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%86%E9%9B%86%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 密集连接网络</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.2.1.</span> <span class="nav-text">3.2.1 第一个模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%AD%A3%E5%88%99%E5%8C%96%E9%99%8D%E4%BD%8E%E6%8B%9F%E5%90%88%E9%80%9F%E5%BA%A6"><span class="nav-number">4.2.2.</span> <span class="nav-text">3.2.2 使用正则化降低拟合速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">4.2.3.</span> <span class="nav-text">小结：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E8%8A%82%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%A4%A7%E5%B0%8F"><span class="nav-number">4.2.4.</span> <span class="nav-text">3.2.3 调节神经网络大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93-1"><span class="nav-number">4.2.5.</span> <span class="nav-text">3.2.4 小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%B1%BB%E6%A8%A1%E5%9E%8B%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 第二类模型：卷积神经网络</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">4. 总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">WinterTee</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">WinterTee</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
